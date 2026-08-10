@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>PushPulse · 俯卧撑训练</title>
+  <meta name="theme-color" content="#0f0f17">
+  <link rel="manifest" href="manifest.webmanifest">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="PushPulse">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%F0%9F%92%AA%3C/text%3E%3C/svg%3E">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;600;700;800&family=JetBrains+Mono:wght@500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css?v=30">
+</head>
+<body>
+  <div class="app">
+    <header>
+      <span class="logo">💪</span>
+      <div>
+        <h1>PushPulse</h1>
+        <p id="today-label"></p>
+      </div>
+    </header>
+
+
+    <div id="app-view">
+      <!-- 训练 -->
+      <section class="tab-pane" id="tab-workout">
+        <div class="card counter-card">
+          <div class="count-wrap" id="count-wrap">
+            <svg class="ring" viewBox="0 0 220 220" aria-hidden="true">
+              <defs>
+            <linearGradient id="ringGrad" x1="0" y1="0" x2="1" y2="1">
+              <stop offset="0%" stop-color="#ff6b35"/>
+              <stop offset="100%" stop-color="#ffb59d"/>
+            </linearGradient>
+              </defs>
+              <circle class="ring-bg" cx="110" cy="110" r="98"></circle>
+              <circle id="goal-ring" class="ring-fg" cx="110" cy="110" r="98"></circle>
+            </svg>
+            <div class="count-inner">
+              <div id="count-value" class="count">0</div>
+              <div class="count-label">本次训练</div>
+            </div>
+          </div>
+
+          <div class="goal-meta">
+            <span id="goal-text">今日 0 / 30</span>
+            <span id="goal-pct">0%</span>
+          </div>
+
+          <div class="mode-chips">
+            <button id="mode-free" class="mode-chip active" type="button">🏃 自由</button>
+            <button id="mode-plan" class="mode-chip" type="button">📋 计划</button>
+          </div>
+          <div id="plan-mode-info" class="session-info plan-mode-info" hidden>计划模式：按「计划」页选择的计划执行（入门/进阶/挑战/自定义）</div>
+          <div class="session-row">
+            <div id="session-info" class="session-info"></div>
+            <button id="skip-rest-btn" class="chip skip-rest-btn" type="button" hidden>跳过休息 →</button>
+          </div>
+          <div id="plan-rounds-info" class="plan-rounds-info"></div>
+
+          <div class="actions">
+            <button id="add-btn" class="btn btn-primary btn-big" type="button">＋1 修正</button>
+            <button id="undo-btn" class="btn" type="button">−1 修正</button>
+            <button id="reset-btn" class="btn btn-ghost" type="button">清零</button>
+          </div>
+
+          <button id="start-btn" class="btn btn-start" type="button">开始训练</button>
+          <p class="hint">默认自动计数；计数不准时，可用 ＋1 / 撤销 手动修正。</p>
+        </div>
+
+        <div class="card">
+          <div class="mini-stats">
+            <div class="mini-stat">
+              <span class="mini-value" id="today-stat">0</span>
+              <span class="mini-label">今日</span>
+            </div>
+            <div class="mini-stat">
+              <span class="mini-value" id="week-stat">0</span>
+              <span class="mini-label">本周</span>
+            </div>
+            <div class="mini-stat">
+              <span class="mini-value" id="month-stat">0</span>
+              <span class="mini-label">本月</span>
+            </div>
+            <div class="mini-stat">
+              <span class="mini-value" id="calorie-stat">0</span>
+              <span class="mini-label">今日消耗(千卡)</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="card camera-card" id="camera-panel">
+          <div class="video-box">
+            <video id="video" playsinline muted></video>
+            <canvas id="overlay" width="640" height="480"></canvas>
+            <div class="cam-mask" id="cam-mask">
+              <span class="cam-icon">📷</span>
+              <span>打开摄像头开始自动计数</span>
+            </div>
+          </div>
+          <div class="camera-actions">
+            <button id="camera-start" class="btn btn-primary" type="button">打开摄像头</button>
+            <button id="camera-stop" class="btn btn-ghost" type="button" disabled>关闭摄像头</button>
+            <button id="camera-flip" class="btn btn-ghost" type="button" disabled>切换前/后摄像头</button>
+          </div>
+          <p class="status" id="camera-status">提示：让肩膀、双手（最好还有胯部）进入画面。</p>
+          <p class="camera-debug" id="camera-debug"></p>
+        </div>
+
+        <div class="card">
+          <div class="stats">
+            <div class="stat">
+              <span class="stat-value" id="timer">00:00</span>
+              <span class="stat-label">本次用时</span>
+            </div>
+            <div class="stat">
+              <span class="stat-value" id="pace">0.0</span>
+              <span class="stat-label">个/分钟</span>
+            </div>
+            <div class="stat">
+              <span class="stat-value" id="calories">0</span>
+              <span class="stat-label">本次消耗(千卡)</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 计划 -->
+      <section class="tab-pane" id="tab-plan" hidden>
+        <div class="card plan-card">
+          <div class="card-title">🏋️ 训练计划 <span id="plan-badge" class="plan-badge">入门</span></div>
+          <div class="plan-presets">
+            <button class="plan-btn active" type="button" data-preset="beginner">入门</button>
+            <button class="plan-btn" type="button" data-preset="intermediate">进阶</button>
+            <button class="plan-btn" type="button" data-preset="challenge">挑战</button>
+            <button class="plan-btn" type="button" data-preset="custom">自定义</button>
+          </div>
+          <div class="goal-track plan-track">
+            <div id="plan-progress-fill" class="goal-fill plan-fill"></div>
+          </div>
+          <div class="goal-meta">
+            <span id="plan-progress-text">本月已完成 0 天 · 目标 12 天</span>
+            <span id="plan-month-hint" class="month-summary">本月还剩 21 个自然日</span>
+          </div>
+          <div id="plan-today" class="plan-today">今日组次 6-5-4 · 组间休息 60 秒</div>
+          <div class="plan-actions">
+            <button id="plan-start" class="btn btn-primary" type="button">开始今日训练</button>
+            <button id="plan-done" class="btn btn-ghost" type="button">完成今日计划</button>
+          </div>
+        </div>
+
+        <div class="card" id="custom-plan-editor" hidden>
+          <div class="card-title">📝 自定义每日计划</div>
+          <div class="setting">
+            <label for="custom-weeks">循环周数</label>
+            <input id="custom-weeks" type="number" min="1" max="12" value="4">
+            <span>周</span>
+          </div>
+          <div class="custom-fields">
+            <div class="custom-field">
+              <label>组数</label>
+              <input id="custom-sets" type="number" min="1" max="20" value="3">
+            </div>
+            <div class="custom-field">
+              <label>每组次数</label>
+              <input id="custom-reps" type="number" min="1" max="200" value="8">
+            </div>
+            <div class="custom-field">
+              <label>间隔休息(秒)</label>
+              <input id="custom-rest" type="number" min="10" max="600" value="60">
+            </div>
+          </div>
+          <button id="custom-save" class="btn btn-start" type="button">保存自定义计划</button>
+        </div>
+
+        <div class="card challenge-card">
+          <div class="card-title">🔥 挑战 <span id="challenge-level" class="plan-badge">入门</span></div>
+          <div class="challenge-main">
+            <div class="challenge-num"><span id="challenge-streak">0</span> 天</div>
+            <div class="challenge-sub">已坚持连续训练 · 每天完成一次即算坚持</div>
+          </div>
+          <div class="goal-track">
+            <div id="challenge-fill" class="goal-fill plan-fill"></div>
+          </div>
+          <div class="goal-meta">
+            <span id="challenge-text">坚持 0 / 100 天</span>
+          </div>
+          <div class="challenge-grid">
+            <div class="challenge-cell">
+              <span id="challenge-month">0/12</span>
+              <span class="challenge-cell-label">本月训练天数</span>
+            </div>
+            <div class="challenge-cell">
+              <span id="challenge-total">0</span>
+              <span class="challenge-cell-label">累计个数</span>
+            </div>
+            <div class="challenge-cell">
+              <span id="challenge-best">0</span>
+              <span class="challenge-cell-label">最佳单次</span>
+            </div>
+            <div class="challenge-cell">
+              <span id="challenge-week">0</span>
+              <span class="challenge-cell-label">本周训练天数</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="card tips-card">
+          <div class="card-title">💡 动作要领</div>
+          <ul class="tips">
+            <li>身体保持一条直线，核心收紧，不塌腰不撅臀</li>
+            <li>下压时胸口接近地面，手肘与身体约 45°</li>
+            <li>撑起时手臂伸直，但不要锁死肘关节</li>
+            <li>匀速呼吸：下压吸气，撑起呼气</li>
+          </ul>
+        </div>
+      </section>
+
+      <!-- 统计 -->
+      <section class="tab-pane" id="tab-stats" hidden>
+        <div class="card">
+          <div class="card-title">最近 7 天 <span id="month-summary" class="month-summary"></span></div>
+          <div id="history-chart" class="chart"></div>
+        </div>
+
+        <div class="card">
+          <div class="card-title">数据导出</div>
+          <div class="plan-actions">
+            <button id="export-health" class="btn btn-primary" type="button">Apple 健康 XML</button>
+            <button id="export-csv" class="btn" type="button">CSV</button>
+          </div>
+          <p class="hint">网页无法直接写入 Apple 健康，导出 XML/CSV 后用「健康自动导出」等工具导入。</p>
+        </div>
+      </section>
+
+      <!-- 我的 -->
+      <section class="tab-pane" id="tab-me" hidden>
+        <div class="card settings-card">
+          <div class="card-title">训练设置</div>
+          <div class="setting">
+            <label for="goal-input">每日目标</label>
+            <input id="goal-input" type="number" min="1" max="999" value="30">
+            <span>个</span>
+          </div>
+          <div class="setting">
+            <label for="sound-toggle">计数音效</label>
+            <label class="switch">
+              <input id="sound-toggle" type="checkbox" checked>
+              <span class="slider"></span>
+            </label>
+          </div>
+        </div>
+
+        <div class="card settings-card">
+          <div class="card-title">个人资料</div>
+          <div class="profile-grid">
+            <input id="prof-nickname" type="text" placeholder="昵称">
+            <input id="prof-height" type="number" min="80" max="250" placeholder="身高 cm">
+            <input id="prof-age" type="number" min="5" max="120" placeholder="年龄">
+            <input id="prof-weight" type="number" min="20" max="300" placeholder="体重 kg">
+          </div>
+          <button id="save-profile" class="btn btn-start" type="button">保存资料</button>
+          <p class="hint">卡路里按体重估算：约 体重(kg) × 0.007 千卡/个</p>
+        </div>
+      </section>
+    </div>
+
+    <p class="footer">自动计数需要联网加载动作识别模型；数据保存在本机浏览器中。<br><span id="version-label"></span></p>
+  </div>
+
+  <nav class="tabbar" id="tabbar" hidden>
+    <button class="tab-btn active" type="button" data-tab="workout">🏋️ 训练</button>
+    <button class="tab-btn" type="button" data-tab="plan">📋 计划</button>
+    <button class="tab-btn" type="button" data-tab="stats">📊 统计</button>
+    <button class="tab-btn" type="button" data-tab="me">👤 我的</button>
+  </nav>
+
+  <div id="rep-flash" class="rep-flash"></div>
+  <script src="app.js?v=30"></script>
+</body>
+</html>
