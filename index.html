@@ -13,7 +13,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;600;700;800&family=JetBrains+Mono:wght@500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="styles.css?v=31">
+  <link rel="stylesheet" href="styles.css?v=32">
 </head>
 <body>
   <div class="app">
@@ -161,19 +161,18 @@
             <input id="custom-weeks" type="number" min="1" max="12" value="4">
             <span>周</span>
           </div>
-          <div class="custom-fields">
-            <div class="custom-field">
-              <label>组数</label>
-              <input id="custom-sets" type="number" min="1" max="20" value="3">
+          <div class="custom-sets-editor">
+            <div class="custom-sets-label">每组次数（可逐组调整）</div>
+            <div id="custom-set-rows" class="custom-set-rows"></div>
+            <div class="custom-sets-actions">
+              <button id="custom-add-set" class="btn" type="button">＋ 添加一组</button>
+              <button id="custom-remove-set" class="btn btn-ghost" type="button">－ 删除一组</button>
             </div>
-            <div class="custom-field">
-              <label>每组次数</label>
-              <input id="custom-reps" type="number" min="1" max="200" value="8">
-            </div>
-            <div class="custom-field">
-              <label>间隔休息(秒)</label>
-              <input id="custom-rest" type="number" min="10" max="600" value="60">
-            </div>
+          </div>
+          <div class="setting">
+            <label for="custom-rest">间隔休息(秒)</label>
+            <input id="custom-rest" type="number" min="10" max="600" value="60">
+            <span>秒</span>
           </div>
           <button id="custom-save" class="btn btn-start" type="button">保存自定义计划</button>
         </div>
@@ -281,6 +280,6 @@
   </nav>
 
   <div id="rep-flash" class="rep-flash"></div>
-  <script src="app.js?v=31"></script>
+  <script src="app.js?v=32"></script>
 </body>
 </html>

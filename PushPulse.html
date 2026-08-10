@@ -1054,6 +1054,72 @@ input[type="number"] {
   border-color: var(--accent);
   box-shadow: 0 0 0 3px rgba(255, 107, 53, 0.15);
 }
+
+/* ===== 自定义计划：逐组编辑 ===== */
+.custom-sets-editor {
+  margin: 12px 0;
+}
+.custom-sets-label {
+  font-size: 12px;
+  color: var(--muted);
+  margin-bottom: 8px;
+}
+.custom-set-rows {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.custom-set-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 8px 12px;
+}
+.custom-set-name {
+  font-weight: 700;
+}
+.set-stepper {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.set-stepper button {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  border: 1px solid var(--line);
+  background: rgba(255, 255, 255, 0.08);
+  color: var(--text);
+  font-size: 16px;
+  font-weight: 700;
+  cursor: pointer;
+  line-height: 1;
+}
+.set-stepper button:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+.set-count {
+  min-width: 44px;
+  text-align: center;
+  font-size: 18px;
+  font-weight: 800;
+  font-family: "JetBrains Mono", monospace;
+}
+.custom-sets-actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 10px;
+}
+.custom-set-empty {
+  color: var(--muted);
+  font-size: 13px;
+  text-align: center;
+  padding: 10px 0;
+}
 </style>
 </head>
 <body>
@@ -1329,7 +1395,7 @@ input[type="number"] {
   const OLD_HISTORY_KEY = 'pushup-counter-history-v1';
   const OLD_SETTINGS_KEY = 'pushup-counter-settings-v1';
   const PROFILE_KEY = 'pushup-profile-v30';
-  const APP_VERSION = 'v31-web-test';
+  const APP_VERSION = 'v32-web-test';
   const POSE_CDN = 'https://cdn.jsdelivr.net/npm/@mediapipe/pose/';
 
   const PLANS = {
@@ -1388,8 +1454,9 @@ input[type="number"] {
     planDone: $('plan-done'),
     customPlanEditor: $('custom-plan-editor'),
     customWeeks: $('custom-weeks'),
-    customSets: $('custom-sets'),
-    customReps: $('custom-reps'),
+    customSetRows: $('custom-set-rows'),
+    customAddSet: $('custom-add-set'),
+    customRemoveSet: $('custom-remove-set'),
     customRest: $('custom-rest'),
     customSave: $('custom-save'),
     modeFree: $('mode-free'),
@@ -1459,6 +1526,7 @@ input[type="number"] {
   let planStartedToday = false;
   let planDayCompleted = false;
   let sessionTarget = 0;
+  let customSetCounts = [];
 
   const RING_RADIUS = 98;
   const RING_CIRCUMFERENCE = 2 * Math.PI * RING_RADIUS;
@@ -1629,17 +1697,32 @@ input[type="number"] {
       settings.plan.preset = 'beginner';
     }
     if (!settings.customPlan) {
-      settings.customPlan = { weeks: 4, setsCount: 3, reps: 8, restSec: 60 };
+      settings.customPlan = { weeks: 4, sets: [8, 8, 8], restSec: 60 };
     } else if (settings.customPlan.days) {
       const first = settings.customPlan.days.find((d) => !d.rest) || null;
       settings.customPlan = {
         weeks: settings.customPlan.weeks || 4,
-        setsCount: first && first.sets && first.sets.length ? first.sets.length : 3,
-        reps: first && first.sets && first.sets[0] ? first.sets[0] : 8,
+        sets: first && first.sets && first.sets.length ? first.sets.slice() : [8, 8, 8],
         restSec: (first && first.restSec) || 60
       };
+    } else if (!Array.isArray(settings.customPlan.sets)) {
+      const setsCount = settings.customPlan.setsCount || 3;
+      const reps = settings.customPlan.reps || 8;
+      settings.customPlan.sets = Array.from({ length: setsCount }, () => reps);
+      delete settings.customPlan.setsCount;
+      delete settings.customPlan.reps;
     }
-    const total = planTotalDays(settings.plan.preset);
+    settings.customPlan.weeks = Math.min(12, Math.max(1, parseInt(settings.customPlan.weeks, 10) || 4));
+    settings.customPlan.restSec = Math.min(600, Math.max(10, parseInt(settings.customPlan.restSec, 10) || 60));
+    if (!settings.customPlan.sets || settings.customPlan.sets.length === 0) {
+      settings.customPlan.sets = [8];
+    }
+    settings.customPlan.sets = settings.customPlan.sets
+      .slice(0, 20)
+      .map((v) => Math.min(200, Math.max(1, parseInt(v, 10) || 8)));
+    const total = settings.plan.preset === 'custom'
+      ? settings.customPlan.weeks * 7
+      : planMeta(settings.plan.preset).weeks * planMeta(settings.plan.preset).daysPerWeek;
     if (settings.plan.completed > total) settings.plan.completed = total;
   }
 
@@ -1672,7 +1755,7 @@ input[type="number"] {
       return {
         week: Math.floor(settings.plan.completed / 7) + 1,
         dayLabel: WEEKDAY_NAMES[weekdayIndex],
-        sets: Array(cp.setsCount).fill(cp.reps),
+        sets: cp.sets.slice(),
         rest: cp.restSec
       };
     }
@@ -1850,30 +1933,59 @@ input[type="number"] {
     ensurePlan();
     const cp = settings.customPlan;
     els.customWeeks.value = cp.weeks;
-    els.customSets.value = cp.setsCount;
-    els.customReps.value = cp.reps;
     els.customRest.value = cp.restSec;
+    customSetCounts = cp.sets.slice();
+    renderCustomSetRows();
+  }
+
+  function renderCustomSetRows() {
+    const rows = customSetCounts
+      .map(
+        (count, index) => `
+    <div class="custom-set-row">
+      <span class="custom-set-name">第 ${index + 1} 组</span>
+      <span class="set-stepper">
+        <button type="button" data-action="dec" data-index="${index}" aria-label="减少">−</button>
+        <span class="set-count">${count}</span>
+        <button type="button" data-action="inc" data-index="${index}" aria-label="增加">＋</button>
+      </span>
+    </div>`
+      )
+      .join('');
+    els.customSetRows.innerHTML =
+      rows || '<div class="custom-set-empty">还没有组，点击「添加一组」</div>';
+  }
+
+  function addCustomSet() {
+    ensurePlan();
+    if (customSetCounts.length >= 20) {
+      flash('最多 20 组');
+      return;
+    }
+    customSetCounts.push(customSetCounts[customSetCounts.length - 1] || 8);
+    renderCustomSetRows();
+  }
+
+  function removeCustomSet() {
+    if (customSetCounts.length <= 1) {
+      flash('至少保留 1 组');
+      return;
+    }
+    customSetCounts.pop();
+    renderCustomSetRows();
   }
 
   function saveCustomPlan() {
     ensurePlan();
     const weeks = Math.min(12, Math.max(1, parseInt(els.customWeeks.value, 10) || 4));
-    const setsCount = Math.min(
-      20,
-      Math.max(1, parseInt(els.customSets.value, 10) || 1)
-    );
-    const reps = Math.min(
-      200,
-      Math.max(1, parseInt(els.customReps.value, 10) || 8)
-    );
-    const restSec = Math.min(
-      600,
-      Math.max(10, parseInt(els.customRest.value, 10) || 60)
-    );
-
-    settings.customPlan = { weeks, setsCount, reps, restSec };
+    const restSec = Math.min(600, Math.max(10, parseInt(els.customRest.value, 10) || 60));
+    if (!customSetCounts || customSetCounts.length === 0) customSetCounts = [8];
+    const sets = customSetCounts
+      .slice(0, 20)
+      .map((v) => Math.min(200, Math.max(1, parseInt(v, 10) || 8)));
+    settings.customPlan = { weeks, sets, restSec };
     settings.plan.preset = 'custom';
-    const total = planTotalDays('custom');
+    const total = weeks * 7;
     if (settings.plan.completed > total) settings.plan.completed = total;
     persistAccount();
     renderPlan();
@@ -2748,6 +2860,22 @@ input[type="number"] {
   els.planStart.addEventListener('click', startPlanWorkout);
   els.planDone.addEventListener('click', completePlanDay);
   els.customSave.addEventListener('click', saveCustomPlan);
+  els.customAddSet.addEventListener('click', addCustomSet);
+  els.customRemoveSet.addEventListener('click', removeCustomSet);
+  els.customSetRows.addEventListener('click', (e) => {
+    const target = e && e.target;
+    const dataset = target && target.dataset ? target.dataset : null;
+    if (!dataset || !dataset.action) return;
+    const index = parseInt(dataset.index, 10);
+    if (!Number.isFinite(index)) return;
+    if (dataset.action === 'inc') {
+      customSetCounts[index] = Math.min(200, (customSetCounts[index] || 0) + 1);
+      renderCustomSetRows();
+    } else if (dataset.action === 'dec') {
+      customSetCounts[index] = Math.max(1, (customSetCounts[index] || 0) - 1);
+      renderCustomSetRows();
+    }
+  });
   els.exportHealth.addEventListener('click', exportHealth);
   els.exportCsv.addEventListener('click', exportCsv);
 
