@@ -4,7 +4,7 @@
   const OLD_HISTORY_KEY = 'pushup-counter-history-v1';
   const OLD_SETTINGS_KEY = 'pushup-counter-settings-v1';
   const PROFILE_KEY = 'pushup-profile-v30';
-  const APP_VERSION = 'v30-web-test';
+  const APP_VERSION = 'v31-web-test';
   const POSE_CDN = 'https://cdn.jsdelivr.net/npm/@mediapipe/pose/';
 
   const PLANS = {
@@ -488,6 +488,31 @@
       flash('训练计划已全部完成 🎉');
       return;
     }
+    if (sessionCount <= 0 && !window.confirm('今日没有计数记录，仍要标记今日计划完成吗？')) {
+      flash('⚠️ 本次训练还没有计数，请先 +1 或打开摄像头');
+      return;
+    }
+    if (sessionCount > 0) {
+      const key = todayKey();
+      history[key] = (history[key] || 0) + sessionCount;
+      if (sessionCount > (currentAccount.bestSession || 0)) {
+        currentAccount.bestSession = sessionCount;
+      }
+      sessionCount = 0;
+      running = false;
+      clearInterval(timerId);
+      clearRest();
+      setIndex = 0;
+      setCount = 0;
+      planSetsList = [];
+      sessionTarget = 0;
+      if (workoutMode === 'sets') workoutMode = 'free';
+      els.startBtn.textContent = '开始训练';
+      els.startBtn.classList.remove('active');
+      els.timer.textContent = '00:00';
+      els.pace.textContent = '0.0';
+      els.calories.textContent = '0';
+    }
     settings.plan.completed += 1;
     planDayCompleted = true;
     persistAccount();
@@ -611,6 +636,24 @@
         updateSessionInfo();
       }
     }, 1000);
+  }
+
+  function computeStreak() {
+    const cursor = new Date();
+    let streak = 0;
+    if (todayTotal() === 0) {
+      cursor.setDate(cursor.getDate() - 1);
+    }
+    for (let i = 0; i < 3660; i++) {
+      const key = dateKey(cursor);
+      if ((history[key] || 0) > 0) {
+        streak += 1;
+      } else {
+        break;
+      }
+      cursor.setDate(cursor.getDate() - 1);
+    }
+    return streak;
   }
 
   function renderChallenge() {
