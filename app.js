@@ -4,7 +4,7 @@
   const OLD_HISTORY_KEY = 'pushup-counter-history-v1';
   const OLD_SETTINGS_KEY = 'pushup-counter-settings-v1';
   const PROFILE_KEY = 'pushup-profile-v30';
-  const APP_VERSION = 'v32-web-test';
+  const APP_VERSION = 'v33-web-test';
   const POSE_CDN = 'https://cdn.jsdelivr.net/npm/@mediapipe/pose/';
 
   const PLANS = {
@@ -13,6 +13,177 @@
     challenge: { label: '挑战', weeks: 10, daysPerWeek: 5, sets: 5, rest: 45, base: 14, grow: 3 }
   };
   const WEEKDAY_NAMES = ['周一', '周二', '周三', '周四', '周五', '周六', '周日'];
+  const WEEKDAY_NAMES_EN = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+  const WEEK_NAMES_EN = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+
+  const I18N = {
+    /* 训练计划标签 */
+    '入门': 'Beginner',
+    '进阶': 'Intermediate',
+    '挑战': 'Challenge',
+    '自定义': 'Custom',
+    /* 训练页 */
+    '本次训练': 'This session',
+    '🏃 自由': '🏃 Free',
+    '📋 计划': '📋 Plan',
+    '计划模式：按「计划」页选择的计划执行（入门/进阶/挑战/自定义）': 'Plan mode: follow the plan chosen on the Plan tab (Beginner/Intermediate/Challenge/Custom)',
+    '跳过休息 →': 'Skip rest →',
+    '＋1 修正': '＋1 fix',
+    '−1 修正': '−1 fix',
+    '清零': 'Reset',
+    '开始训练': 'Start Workout',
+    '结束并保存': 'Finish & Save',
+    '默认自动计数；计数不准时，可用 ＋1 / 撤销 手动修正。': 'Auto-counting by default; use +1 / undo to correct when it drifts.',
+    '今日': 'Today',
+    '本周': 'This week',
+    '本月': 'This month',
+    '今日消耗(千卡)': 'Today kcal',
+    '打开摄像头开始自动计数': 'Open camera to start auto-counting',
+    '打开摄像头': 'Open camera',
+    '关闭摄像头': 'Close camera',
+    '切换前/后摄像头': 'Switch camera',
+    '提示：让肩膀、双手（最好还有胯部）进入画面。': 'Tip: keep shoulders, hands (and hips if possible) in frame.',
+    '本次用时': 'Duration',
+    '个/分钟': '/min',
+    '本次消耗(千卡)': 'Session kcal',
+    /* 计划页 */
+    '🏋️ 训练计划': '🏋️ Training Plan',
+    '开始今日训练': "Start Today's Workout",
+    '完成今日计划': "Complete Today's Plan",
+    '📝 自定义每日计划': '📝 Custom Daily Plan',
+    '循环周数': 'Weeks',
+    '周': 'wks',
+    '每组次数（可逐组调整）': 'Reps per set (adjust per set)',
+    '＋ 添加一组': '＋ Add set',
+    '－ 删除一组': '－ Remove set',
+    '间隔休息(秒)': 'Rest (sec)',
+    '秒': 'sec',
+    '保存自定义计划': 'Save Custom Plan',
+    '🔥 挑战': '🔥 Challenge',
+    '天': 'days',
+    '已坚持连续训练 · 每天完成一次即算坚持': 'Consecutive training · one workout per day counts',
+    '本月训练天数': 'Days this month',
+    '累计个数': 'Total reps',
+    '最佳单次': 'Best session',
+    '本周训练天数': 'Days this week',
+    '💡 动作要领': '💡 Form tips',
+    '身体保持一条直线，核心收紧，不塌腰不撅臀': 'Keep your body in a straight line, core tight, no sagging hips',
+    '下压时胸口接近地面，手肘与身体约 45°': "Lower until your chest nears the ground, elbows about 45°",
+    '撑起时手臂伸直，但不要锁死肘关节': "Press up with straight arms, but don't lock your elbows",
+    '匀速呼吸：下压吸气，撑起呼气': 'Breathe steadily: inhale down, exhale up',
+    /* 统计页 */
+    '最近 7 天': 'Last 7 days',
+    '数据导出': 'Export',
+    'Apple 健康 XML': 'Apple Health XML',
+    'CSV': 'CSV',
+    '网页无法直接写入 Apple 健康，导出 XML/CSV 后用「健康自动导出」等工具导入。': 'The web page cannot write to Apple Health directly; export XML/CSV and import with tools like "Health Auto Export".',
+    /* 我的页 */
+    '训练设置': 'Training Settings',
+    '语言': 'Language',
+    '外观': 'Appearance',
+    '白色': 'White',
+    '跟随系统': 'System',
+    '黑色': 'Dark',
+    '每日目标': 'Daily Goal',
+    '个': 'reps',
+    '计数音效': 'Count sound',
+    '个人资料': 'Profile',
+    '保存资料': 'Save Profile',
+    '卡路里按体重估算：约 体重(kg) × 0.007 千卡/个': 'Calories estimated from weight: ~ weight(kg) × 0.007 kcal per rep',
+    '昵称': 'Nickname',
+    '身高 cm': 'Height cm',
+    '年龄': 'Age',
+    '体重 kg': 'Weight kg',
+    /* 页脚 / 导航 */
+    '自动计数需要联网加载动作识别模型；数据保存在本机浏览器中。': 'Auto-counting needs network to load the pose model; data stays in your browser.',
+    '🏋️ 训练': '🏋️ Workout',
+    '📊 统计': '📊 Stats',
+    '👤 我的': '👤 Me',
+    /* 动态文案（{n} 为占位符） */
+    '第 {0} 天': 'Day {0}',
+    '本月已完成 {0} 天 · 目标 {1} 天': 'Done {0} days this month · Goal {1} days',
+    '本月还剩 {0} 个自然日': '{0} calendar days left this month',
+    '今日组次 {0} · 组间休息 {1} 秒': "Today's sets {0} · Rest {1}s",
+    '今日休息，不需要训练 🛌': 'Rest day, no training needed 🛌',
+    '请先在自定义计划中设置至少一个训练日': 'Add at least one training day in your custom plan first',
+    '请先在「计划」页设置至少一个训练日': 'Set at least one training day on the Plan tab first',
+    '计划已完成 🎉': 'Plan complete 🎉',
+    '今日已完成 ✅': 'Done for today ✅',
+    '📋 计划（{0}）': '📋 Plan ({0})',
+    '今天是休息日 🛌': 'Rest day today 🛌',
+    '请先设置自定义计划中的训练日': 'Set training days in your custom plan first',
+    '今日训练 {0} 个：{1} 💪': "Today's workout {0} reps: {1} 💪",
+    '训练计划已全部完成 🎉': 'All plans complete 🎉',
+    '今日没有计数记录，仍要标记今日计划完成吗？': "No reps recorded today — still mark today's plan complete?",
+    '⚠️ 本次训练还没有计数，请先 +1 或打开摄像头': '⚠️ No reps yet this session — add +1 or open the camera first',
+    '今日计划完成 ✅': "Today's plan complete ✅",
+    '第 {0} 组': 'Set {0}',
+    '减少': 'decrease',
+    '增加': 'increase',
+    '还没有组，点击「添加一组」': 'No sets yet — tap "Add set"',
+    '最多 20 组': 'Up to 20 sets',
+    '至少保留 1 组': 'Keep at least 1 set',
+    '自定义计划已保存 ✅': 'Custom plan saved ✅',
+    '休息中 {0} 秒 · 下一组 {1}/{2}': 'Resting {0}s · Next set {1}/{2}',
+    '第 {0}/{1} 组 · 目标 {2} · 已完成 {3}': 'Set {0}/{1} · Target {2} · Done {3}',
+    '今日训练已完成 🎉': "Today's workout complete 🎉",
+    '训练进行中，请先结束当前训练': 'Training in progress — finish it first',
+    '第 {0} 组开始 💪': 'Set {0} start 💪',
+    '坚持 {0} / 100 天': 'Streak {0} / 100 days',
+    '还没有训练数据可导出': 'No training data to export yet',
+    'Apple 健康文件已导出 ✅': 'Apple Health file exported ✅',
+    '日期': 'Date',
+    '次数': 'Count',
+    '估算千卡': 'Est. kcal',
+    'CSV 已导出 ✅': 'CSV exported ✅',
+    '{0}年{1}月{2}日 · 星期{3}': '{0}/{1}/{2} · {3}',
+    '第 {0} 个 💪': 'Rep {0} 💪',
+    '第 {0} 组完成，休息 {1} 秒': 'Set {0} done, rest {1}s',
+    '今日训练完成！可到「计划」页点完成今日计划 ✅': "Workout done! Tap Complete Today's Plan on the Plan tab ✅",
+    '🎉 今日目标达成，已自动保存！': '🎉 Daily goal reached — auto-saved!',
+    '今日 {0} / {1}': 'Today {0} / {1}',
+    '{0}计划：完成 {1}/{2} 次（每次 {3} 个 · 今日 {4}/{5} 个）': '{0} plan: {1}/{2} rounds done ({3} reps each · today {4}/{5})',
+    '🎉 达成今日目标！': '🎉 Daily goal reached!',
+    '本月共 {0} 个': '{0} reps this month',
+    '{0}: {1} 个': '{0}: {1} reps',
+    '已保存 {0} 个 ✅': 'Saved {0} reps ✅',
+    '加载失败': 'Failed to load',
+    '正在加载识别模型（首次需要联网）…': 'Loading pose model (needs network first time)…',
+    '模型加载失败，请检查网络后重试': 'Model load failed — check your network and retry',
+    '当前浏览器不支持摄像头，请使用 Chrome 或 Edge': 'Camera is not supported in this browser — use Chrome or Edge',
+    '识别中：身体水平、双手撑地，先伸直手臂再下压。': 'Detecting: body level, hands on floor; straighten arms, then press down.',
+    '无法启动：': 'Failed to start: ',
+    '请检查摄像头权限': 'Check camera permission',
+    '已关闭摄像头。': 'Camera off.',
+    '未检测到身体，请进入画面': 'No body detected — step into view',
+    '未检测到身体': 'No body detected',
+    '请让肩膀入画': 'Move shoulders into view',
+    '肩膀 {0} · 双手 {1}': 'Shoulders {0} · Hands {1}',
+    '请摆好俯卧撑姿势：双手撑地': 'Get into push-up form: hands on the floor',
+    '双手不在肩部下方': 'Hands not under shoulders',
+    '请摆好俯卧撑姿势：身体保持水平': 'Get into push-up form: body level',
+    '身体水平 ✗': 'Body level ✗',
+    '膝盖着地不计入，请做标准俯卧撑': "Knees on floor don't count — do standard push-ups",
+    '髋角 {0}°（疑似跪姿）': 'Hip angle {0}° (looks like kneeling)',
+    '膝盖弯曲不计入，请伸直双腿': "Bent knees don't count — straighten your legs",
+    '膝角 {0}°（疑似跪姿）': 'Knee angle {0}° (looks like kneeling)',
+    '手臂角度': 'Arm angle',
+    '肩髋间距': 'Shoulder-hip gap',
+    '请让手臂完整入画或让胯部入画': 'Move arms fully into view or hips into view',
+    '手臂不完整且胯部不可见': 'Arms incomplete and hips not visible',
+    '⬇ 保持控制，然后撑起': '⬇ Hold control, then press up',
+    '⬆ 好姿势，继续': '⬆ Good form, keep going',
+    '正在识别动作…': 'Detecting…',
+    '模式 {0} · 数值 {1} · 状态 {2}': 'Mode {0} · Value {1} · State {2}',
+    '下压': 'down',
+    '撑起': 'up',
+    '确定清空本次计数吗？': "Clear this session's count?",
+    '请填写有效的昵称、身高、年龄、体重': 'Enter a valid nickname, height, age, and weight',
+    '资料已保存 ✅': 'Profile saved ✅',
+    '自定义计划已展开 ✏️': 'Custom plan opened ✏️',
+    '已切换训练计划': 'Plan switched',
+    '版本 {0}': 'Version {0}'
+  };
 
   const CDN_LIBS = [
     {
@@ -107,7 +278,7 @@
 
   let currentAccount = loadProfile();
   let history = currentAccount.history || {};
-  let settings = Object.assign({ goal: 30, sound: true }, currentAccount.settings || {});
+  let settings = Object.assign({ goal: 30, sound: true, lang: 'zh', theme: 'system' }, currentAccount.settings || {});
 
   let sessionCount = 0;
   let running = false;
@@ -140,6 +311,94 @@
   const RING_RADIUS = 98;
   const RING_CIRCUMFERENCE = 2 * Math.PI * RING_RADIUS;
 
+  /* ---------- 中英双语 & 主题 ---------- */
+
+  function isEn() {
+    return settings.lang === 'en';
+  }
+
+  function t(s) {
+    if (!isEn() || s == null) return s;
+    return Object.prototype.hasOwnProperty.call(I18N, s) ? I18N[s] : s;
+  }
+
+  function tpl(pattern, ...args) {
+    const p = isEn() && Object.prototype.hasOwnProperty.call(I18N, pattern)
+      ? I18N[pattern]
+      : pattern;
+    return p.replace(/\{(\d+)\}/g, (_, i) => String(args[Number(i)] == null ? '' : args[Number(i)]));
+  }
+
+  function weekdayName(i) {
+    return isEn() ? WEEKDAY_NAMES_EN[i] : WEEKDAY_NAMES[i];
+  }
+
+  function weekName(i) {
+    return isEn() ? WEEK_NAMES_EN[i] : ['日', '一', '二', '三', '四', '五', '六'][i];
+  }
+
+  function applyTheme() {
+    const theme = settings.theme || 'system';
+    document.documentElement.dataset.theme = theme;
+    const dark =
+      theme === 'dark' ||
+      (theme === 'system' &&
+        (!window.matchMedia || !window.matchMedia('(prefers-color-scheme: light)').matches));
+    const meta = document.querySelector('meta[name="theme-color"]');
+    if (meta) meta.setAttribute('content', dark ? '#0f0f17' : '#f4f3f1');
+    document.querySelectorAll('#theme-selector .seg-btn').forEach((btn) => {
+      btn.classList.toggle('active', btn.dataset.themeOpt === theme);
+    });
+  }
+
+  function translateStatic(root) {
+    const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT, null);
+    const nodes = [];
+    while (walker.nextNode()) nodes.push(walker.currentNode);
+    nodes.forEach((node) => {
+      const text = node.nodeValue;
+      if (text == null) return;
+      const el = node.parentElement;
+      const trimmed = text.trim();
+      if (!trimmed || !el) return;
+      let key = el.dataset ? el.dataset.i18nKey : null;
+      if (!key) {
+        if (!Object.prototype.hasOwnProperty.call(I18N, trimmed)) return;
+        key = trimmed;
+        el.dataset.i18nKey = key;
+        el.dataset.i18nOrig = text;
+      }
+      if (isEn()) {
+        const en = I18N[key];
+        if (en !== undefined) node.nodeValue = text.includes(key) ? text.replace(key, en) : en;
+      } else {
+        node.nodeValue = el.dataset.i18nOrig || key;
+      }
+    });
+  }
+
+  function translatePlaceholders(root) {
+    root.querySelectorAll('[placeholder]').forEach((el) => {
+      const ph = el.getAttribute('placeholder');
+      if (!ph || !Object.prototype.hasOwnProperty.call(I18N, ph)) return;
+      el.setAttribute('data-i18n-ph', ph);
+      el.setAttribute('placeholder', isEn() ? I18N[ph] : ph);
+    });
+  }
+
+  function applyLang() {
+    const en = isEn();
+    document.documentElement.lang = en ? 'en' : 'zh-CN';
+    document.title = en ? 'PushPulse · Push-up Trainer' : 'PushPulse · 俯卧撑训练';
+    translateStatic(document.body);
+    translatePlaceholders(document.body);
+    document.querySelectorAll('#lang-selector .seg-btn').forEach((btn) => {
+      btn.classList.toggle('active', btn.dataset.lang === (settings.lang || 'zh'));
+    });
+    updateTodayLabel();
+    render();
+  }
+
   /* ---------- 账号存储 ---------- */
 
   /* ---------- 本机资料存储 ---------- */
@@ -170,7 +429,7 @@
       age: 28,
       weightKg: 68,
       history: importOldHistory(),
-      settings: Object.assign({ goal: 30, sound: true }, importOldSettings()),
+      settings: Object.assign({ goal: 30, sound: true, lang: 'zh', theme: 'system' }, importOldSettings()),
       bestSession: 0
     };
   }
@@ -180,7 +439,7 @@
       const saved = JSON.parse(localStorage.getItem(PROFILE_KEY));
       if (saved && typeof saved === 'object') {
         saved.history = saved.history || {};
-        saved.settings = Object.assign({ goal: 30, sound: true }, saved.settings);
+        saved.settings = Object.assign({ goal: 30, sound: true, lang: 'zh', theme: 'system' }, saved.settings);
         return saved;
       }
     } catch (_) {
@@ -363,7 +622,7 @@
       const weekdayIndex = (new Date().getDay() + 6) % 7;
       return {
         week: Math.floor(settings.plan.completed / 7) + 1,
-        dayLabel: WEEKDAY_NAMES[weekdayIndex],
+        dayLabel: weekdayName(weekdayIndex),
         sets: cp.sets.slice(),
         rest: cp.restSec
       };
@@ -371,7 +630,7 @@
     const cur = planCurrent(settings.plan.completed, preset);
     return {
       week: cur.week,
-      dayLabel: `第 ${cur.day} 天`,
+      dayLabel: tpl('第 {0} 天', cur.day),
       sets: planSets(preset, cur.week),
       rest: planMeta(preset).rest
     };
@@ -407,8 +666,8 @@
     );
     const label =
       settings.plan.preset === 'custom'
-        ? '自定义'
-        : planMeta(settings.plan.preset).label;
+        ? t('自定义')
+        : t(planMeta(settings.plan.preset).label);
     return { label, roundsDone, roundsNeeded, planTotal };
   }
 
@@ -419,16 +678,16 @@
     const info = planDayInfo();
     const monthDone = monthCompletedDays();
     const monthGoal = planMonthlyGoal();
-    els.planBadge.textContent = preset === 'custom' ? '自定义' : planMeta(preset).label;
+    els.planBadge.textContent = preset === 'custom' ? t('自定义') : t(planMeta(preset).label);
     els.planProgressFill.style.width =
       `${Math.min(100, Math.round((monthDone / Math.max(1, monthGoal)) * 100))}%`;
-    els.planProgressText.textContent = `本月已完成 ${monthDone} 天 · 目标 ${monthGoal} 天`;
-    els.planMonthHint.textContent = `本月还剩 ${monthRemainingDays()} 个自然日`;
+    els.planProgressText.textContent = tpl('本月已完成 {0} 天 · 目标 {1} 天', monthDone, monthGoal);
+    els.planMonthHint.textContent = tpl('本月还剩 {0} 个自然日', monthRemainingDays());
     els.planToday.textContent = info
-      ? `今日组次 ${info.sets.join('-')} · 组间休息 ${info.rest} 秒`
+      ? tpl('今日组次 {0} · 组间休息 {1} 秒', info.sets.join('-'), info.rest)
       : customRestToday()
-        ? '今日休息，不需要训练 🛌'
-        : '请先在自定义计划中设置至少一个训练日';
+        ? t('今日休息，不需要训练 🛌')
+        : t('请先在自定义计划中设置至少一个训练日');
     document.querySelectorAll('.plan-btn').forEach((btn) => {
       btn.classList.toggle('active', btn.dataset.preset === preset);
     });
@@ -447,25 +706,25 @@
     els.planDone.classList.toggle('ready', hasProgress && !planDayCompleted && !allDone);
     els.planDone.classList.toggle('done', planDayCompleted || allDone);
     els.planDone.textContent = allDone
-      ? '计划已完成 🎉'
+      ? t('计划已完成 🎉')
       : planDayCompleted
-        ? '今日已完成 ✅'
-        : '完成今日计划';
+        ? t('今日已完成 ✅')
+        : t('完成今日计划');
   }
 
   function updatePlanModeChip() {
     ensurePlan();
     const label =
       settings.plan.preset === 'custom'
-        ? '自定义'
-        : planMeta(settings.plan.preset).label;
-    els.modePlan.textContent = `📋 计划（${label}）`;
+        ? t('自定义')
+        : t(planMeta(settings.plan.preset).label);
+    els.modePlan.textContent = tpl('📋 计划（{0}）', label);
     const info = planDayInfo();
     els.planModeInfo.textContent = info
-      ? `今日组次 ${info.sets.join('-')} · 组间休息 ${info.rest} 秒`
+      ? tpl('今日组次 {0} · 组间休息 {1} 秒', info.sets.join('-'), info.rest)
       : customRestToday()
-        ? '今日休息，不需要训练 🛌'
-        : '请先在「计划」页设置至少一个训练日';
+        ? t('今日休息，不需要训练 🛌')
+        : t('请先在「计划」页设置至少一个训练日');
   }
 
   function startPlanWorkout() {
@@ -476,7 +735,7 @@
     updatePlanDoneButton();
     const info = planDayInfo();
     if (!info) {
-      flash(customRestToday() ? '今天是休息日 🛌' : '请先设置自定义计划中的训练日');
+      flash(customRestToday() ? t('今天是休息日 🛌') : t('请先设置自定义计划中的训练日'));
       return;
     }
     planSetsList = info.sets;
@@ -491,22 +750,22 @@
     sessionTarget = target;
     if (!running) startStop();
     updateSessionInfo();
-    flash(`今日训练 ${target} 个：${planSetsList.join('-')} 💪`);
+    flash(tpl('今日训练 {0} 个：{1} 💪', target, planSetsList.join('-')));
   }
 
   function completePlanDay() {
     ensurePlan();
     if (planDayCompleted) {
-      flash('今日已完成 ✅');
+      flash(t('今日已完成 ✅'));
       return;
     }
     const total = planTotalDays(settings.plan.preset);
     if (settings.plan.completed >= total) {
-      flash('训练计划已全部完成 🎉');
+      flash(t('训练计划已全部完成 🎉'));
       return;
     }
-    if (sessionCount <= 0 && !window.confirm('今日没有计数记录，仍要标记今日计划完成吗？')) {
-      flash('⚠️ 本次训练还没有计数，请先 +1 或打开摄像头');
+    if (sessionCount <= 0 && !window.confirm(t('今日没有计数记录，仍要标记今日计划完成吗？'))) {
+      flash(t('⚠️ 本次训练还没有计数，请先 +1 或打开摄像头'));
       return;
     }
     if (sessionCount > 0) {
@@ -524,7 +783,7 @@
       planSetsList = [];
       sessionTarget = 0;
       if (workoutMode === 'sets') workoutMode = 'free';
-      els.startBtn.textContent = '开始训练';
+      els.startBtn.textContent = t('开始训练');
       els.startBtn.classList.remove('active');
       els.timer.textContent = '00:00';
       els.pace.textContent = '0.0';
@@ -535,7 +794,7 @@
     persistAccount();
     renderPlan();
     render();
-    flash('今日计划完成 ✅');
+    flash(t('今日计划完成 ✅'));
   }
 
   function populateCustomEditor() {
@@ -552,23 +811,23 @@
       .map(
         (count, index) => `
     <div class="custom-set-row">
-      <span class="custom-set-name">第 ${index + 1} 组</span>
+      <span class="custom-set-name">${tpl('第 {0} 组', index + 1)}</span>
       <span class="set-stepper">
-        <button type="button" data-action="dec" data-index="${index}" aria-label="减少">−</button>
+        <button type="button" data-action="dec" data-index="${index}" aria-label="${t('减少')}">−</button>
         <span class="set-count">${count}</span>
-        <button type="button" data-action="inc" data-index="${index}" aria-label="增加">＋</button>
+        <button type="button" data-action="inc" data-index="${index}" aria-label="${t('增加')}">＋</button>
       </span>
     </div>`
       )
       .join('');
     els.customSetRows.innerHTML =
-      rows || '<div class="custom-set-empty">还没有组，点击「添加一组」</div>';
+      rows || `<div class="custom-set-empty">${t('还没有组，点击「添加一组」')}</div>`;
   }
 
   function addCustomSet() {
     ensurePlan();
     if (customSetCounts.length >= 20) {
-      flash('最多 20 组');
+      flash(t('最多 20 组'));
       return;
     }
     customSetCounts.push(customSetCounts[customSetCounts.length - 1] || 8);
@@ -577,7 +836,7 @@
 
   function removeCustomSet() {
     if (customSetCounts.length <= 1) {
-      flash('至少保留 1 组');
+      flash(t('至少保留 1 组'));
       return;
     }
     customSetCounts.pop();
@@ -599,7 +858,7 @@
     persistAccount();
     renderPlan();
     render();
-    flash('自定义计划已保存 ✅');
+    flash(t('自定义计划已保存 ✅'));
   }
 
   /* ---------- 导航与训练模式 ---------- */
@@ -618,12 +877,12 @@
     if (workoutMode === 'sets') {
       if (restSeconds > 0) {
         els.sessionInfo.textContent =
-          `休息中 ${restSeconds} 秒 · 下一组 ${setIndex + 1}/${planSetsList.length}`;
+          tpl('休息中 {0} 秒 · 下一组 {1}/{2}', restSeconds, setIndex + 1, planSetsList.length);
       } else if (setIndex < planSetsList.length) {
         els.sessionInfo.textContent =
-          `第 ${setIndex + 1}/${planSetsList.length} 组 · 目标 ${planSetsList[setIndex]} · 已完成 ${setCount}`;
+          tpl('第 {0}/{1} 组 · 目标 {2} · 已完成 {3}', setIndex + 1, planSetsList.length, planSetsList[setIndex], setCount);
       } else {
-        els.sessionInfo.textContent = '今日训练已完成 🎉';
+        els.sessionInfo.textContent = t('今日训练已完成 🎉');
       }
       els.skipRestBtn.hidden = !(restSeconds > 0);
       return;
@@ -634,7 +893,7 @@
 
   function selectFreeMode() {
     if (running) {
-      flash('训练进行中，请先结束当前训练');
+      flash(t('训练进行中，请先结束当前训练'));
       return;
     }
     modePlan = false;
@@ -647,7 +906,7 @@
 
   function selectPlanMode() {
     if (running) {
-      flash('训练进行中，请先结束当前训练');
+      flash(t('训练进行中，请先结束当前训练'));
       return;
     }
     modePlan = true;
@@ -677,7 +936,7 @@
       if (restSeconds <= 0) {
         clearRest();
         updateSessionInfo();
-        flash(`第 ${setIndex + 1} 组开始 💪`);
+        flash(tpl('第 {0} 组开始 💪', setIndex + 1));
       } else {
         updateSessionInfo();
       }
@@ -712,13 +971,13 @@
     const totalCount = allTimeTotal();
     const label =
       settings.plan.preset === 'custom'
-        ? '自定义'
-        : planMeta(settings.plan.preset).label;
+        ? t('自定义')
+        : t(planMeta(settings.plan.preset).label);
     const pct = Math.min(100, Math.round((streak / 100) * 100));
     els.challengeLevel.textContent = label;
     els.challengeStreak.textContent = streak;
     els.challengeFill.style.width = `${pct}%`;
-    els.challengeText.textContent = `坚持 ${streak} / 100 天`;
+    els.challengeText.textContent = tpl('坚持 {0} / 100 天', streak);
     els.challengeMonth.textContent = `${monthDone}/${monthGoal}`;
     els.challengeTotal.textContent = totalCount;
     els.challengeBest.textContent = best;
@@ -745,7 +1004,7 @@
       .filter(([, v]) => v > 0)
       .sort((a, b) => a[0].localeCompare(b[0]));
     if (rows.length === 0) {
-      flash('还没有训练数据可导出');
+      flash(t('还没有训练数据可导出'));
       return;
     }
     const lines = [
@@ -764,7 +1023,7 @@
     }
     lines.push('</HealthData>');
     downloadFile('apple-health-export.xml', lines.join('\n'), 'application/xml');
-    flash('Apple 健康文件已导出 ✅');
+    flash(t('Apple 健康文件已导出 ✅'));
   }
 
   function exportCsv() {
@@ -773,22 +1032,21 @@
       .filter(([, v]) => v > 0)
       .sort((a, b) => a[0].localeCompare(b[0]));
     if (rows.length === 0) {
-      flash('还没有训练数据可导出');
+      flash(t('还没有训练数据可导出'));
       return;
     }
-    const lines = ['日期,次数,估算千卡'];
+    const lines = [[t('日期'), t('次数'), t('估算千卡')].join(',')];
     for (const [day, count] of rows) {
       lines.push(`${day},${count},${caloriesFor(count)}`);
     }
     downloadFile('pushup-history.csv', lines.join('\n'), 'text/csv;charset=utf-8');
-    flash('CSV 已导出 ✅');
+    flash(t('CSV 已导出 ✅'));
   }
 
   function updateTodayLabel() {
     const d = new Date();
-    const week = ['日', '一', '二', '三', '四', '五', '六'];
     els.todayLabel.textContent =
-      `${d.getFullYear()}年${d.getMonth() + 1}月${d.getDate()}日 · 星期${week[d.getDay()]}`;
+      tpl('{0}年{1}月{2}日 · 星期{3}', d.getFullYear(), d.getMonth() + 1, d.getDate(), weekName(d.getDay()));
   }
 
   function formatTime(sec) {
@@ -836,16 +1094,16 @@
     els.countWrap.classList.remove('pop');
     void els.countWrap.offsetWidth;
     els.countWrap.classList.add('pop');
-    flash(`第 ${sessionCount} 个 💪`);
+    flash(tpl('第 {0} 个 💪', sessionCount));
     if (workoutMode === 'sets' && restSeconds <= 0 && setIndex < planSetsList.length) {
       setCount += 1;
       if (setCount >= planSetsList[setIndex]) {
         if (setIndex < planSetsList.length - 1) {
           startRest(setIndex + 1);
-          flash(`第 ${setIndex + 1} 组完成，休息 ${planRest} 秒`);
+          flash(tpl('第 {0} 组完成，休息 {1} 秒', setIndex + 1, planRest));
         } else {
           setIndex += 1;
-          flash('今日训练完成！可到「计划」页点完成今日计划 ✅');
+          flash(t('今日训练完成！可到「计划」页点完成今日计划 ✅'));
         }
       }
     }
@@ -879,14 +1137,14 @@
     planSetsList = [];
     sessionTarget = 0;
     if (workoutMode === 'sets') workoutMode = 'free';
-    els.startBtn.textContent = '开始训练';
+    els.startBtn.textContent = t('开始训练');
     els.startBtn.classList.remove('active');
     els.timer.textContent = '00:00';
     els.pace.textContent = '0.0';
     els.calories.textContent = '0';
 
     persistAccount();
-    flash('🎉 今日目标达成，已自动保存！');
+    flash(t('🎉 今日目标达成，已自动保存！'));
   }
 
   function render() {
@@ -899,7 +1157,7 @@
     els.goalRing.style.strokeDashoffset = String(
       RING_CIRCUMFERENCE * (1 - pct / 100)
     );
-    els.goalText.textContent = `今日 ${total} / ${goal}`;
+    els.goalText.textContent = tpl('今日 {0} / {1}', total, goal);
     els.goalPct.textContent = `${pct}%`;
     renderMiniStats();
     renderPlan();
@@ -907,7 +1165,7 @@
     updateSessionInfo();
     const rounds = planRoundsInfo();
     els.planRoundsInfo.textContent = rounds
-      ? `${rounds.label}计划：完成 ${rounds.roundsDone}/${rounds.roundsNeeded} 次（每次 ${rounds.planTotal} 个 · 今日 ${todayTotal()}/${settings.goal} 个）`
+      ? tpl('{0}计划：完成 {1}/{2} 次（每次 {3} 个 · 今日 {4}/{5} 个）', rounds.label, rounds.roundsDone, rounds.roundsNeeded, rounds.planTotal, todayTotal(), settings.goal)
       : '';
     if (total >= settings.goal && !goalCelebrated) {
       goalCelebrated = true;
@@ -935,7 +1193,7 @@
   }
 
   function celebrateGoal() {
-    setTimeout(() => flash('🎉 达成今日目标！'), 260);
+    setTimeout(() => flash(t('🎉 达成今日目标！')), 260);
     els.countWrap.classList.add('celebrate');
     setTimeout(() => els.countWrap.classList.remove('celebrate'), 1000);
     if (navigator.vibrate) navigator.vibrate([40, 60, 40]);
@@ -956,7 +1214,7 @@
 
     const max = Math.max(1, ...days.map((x) => x.value));
     els.historyChart.innerHTML = '';
-    els.monthSummary.textContent = `本月共 ${monthTotal()} 个`;
+    els.monthSummary.textContent = tpl('本月共 {0} 个', monthTotal());
 
     days.forEach((day) => {
       const col = document.createElement('div');
@@ -967,7 +1225,7 @@
       const bar = document.createElement('div');
       bar.className = 'chart-bar';
       bar.style.height = `${Math.max((day.value / max) * 100, day.value ? 8 : 3)}%`;
-      bar.title = `${day.label}: ${day.value} 个`;
+      bar.title = tpl('{0}: {1} 个', day.label, day.value);
       wrap.appendChild(bar);
 
       const val = document.createElement('div');
@@ -999,7 +1257,7 @@
     if (!running) {
       running = true;
       startedAt = Date.now();
-      els.startBtn.textContent = '结束并保存';
+      els.startBtn.textContent = t('结束并保存');
       els.startBtn.classList.add('active');
       timerId = setInterval(tick, 500);
       tick();
@@ -1037,14 +1295,14 @@
     planSetsList = [];
     sessionTarget = 0;
     if (workoutMode === 'sets') workoutMode = 'free';
-    els.startBtn.textContent = '开始训练';
+    els.startBtn.textContent = t('开始训练');
     els.startBtn.classList.remove('active');
     els.timer.textContent = '00:00';
     els.pace.textContent = '0.0';
     els.calories.textContent = '0';
     render();
 
-    if (done > 0) flash(`已保存 ${done} 个 ✅`);
+    if (done > 0) flash(tpl('已保存 {0} 个 ✅', done));
   }
 
   /* ---------- 摄像头自动识别 ---------- */
@@ -1058,7 +1316,7 @@
       s.onload = () => resolve();
       s.onerror = () => {
         s.remove();
-        reject(new Error('加载失败'));
+        reject(new Error(t('加载失败')));
       };
       document.head.appendChild(s);
     });
@@ -1082,13 +1340,13 @@
   }
 
   async function startCamera() {
-    els.cameraStatus.textContent = '正在加载识别模型（首次需要联网）…';
+    els.cameraStatus.textContent = t('正在加载识别模型（首次需要联网）…');
     els.cameraStart.disabled = true;
     try {
       const ok = await ensurePoseLibs();
-      if (!ok) throw new Error('模型加载失败，请检查网络后重试');
+      if (!ok) throw new Error(t('模型加载失败，请检查网络后重试'));
       if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-        throw new Error('当前浏览器不支持摄像头，请使用 Chrome 或 Edge');
+        throw new Error(t('当前浏览器不支持摄像头，请使用 Chrome 或 Edge'));
       }
 
       if (!pose) {
@@ -1118,10 +1376,10 @@
       els.camMask.classList.add('hidden');
       els.cameraStop.disabled = false;
       els.cameraFlip.disabled = false;
-      els.cameraStatus.textContent = '识别中：身体水平、双手撑地，先伸直手臂再下压。';
+      els.cameraStatus.textContent = t('识别中：身体水平、双手撑地，先伸直手臂再下压。');
     } catch (err) {
       els.cameraStatus.textContent =
-        '无法启动：' + (err && err.message ? err.message : '请检查摄像头权限');
+        t('无法启动：') + (err && err.message ? err.message : t('请检查摄像头权限'));
     } finally {
       els.cameraStart.disabled = false;
     }
@@ -1139,7 +1397,7 @@
     els.camMask.classList.remove('hidden');
     els.cameraStop.disabled = true;
     els.cameraFlip.disabled = true;
-    els.cameraStatus.textContent = '已关闭摄像头。';
+    els.cameraStatus.textContent = t('已关闭摄像头。');
     els.cameraDebug.textContent = '';
     const ctx = els.overlay.getContext('2d');
     ctx.clearRect(0, 0, els.overlay.width, els.overlay.height);
@@ -1191,8 +1449,8 @@
       updateDetection(results.poseLandmarks);
     } else {
       resetDetection();
-      els.cameraStatus.textContent = '未检测到身体，请进入画面';
-      els.cameraDebug.textContent = '未检测到身体';
+      els.cameraStatus.textContent = t('未检测到身体，请进入画面');
+      els.cameraDebug.textContent = t('未检测到身体');
     }
     ctx.restore();
   }
@@ -1206,9 +1464,9 @@
 
     if (!shouldersOk) {
       resetDetection();
-      els.cameraStatus.textContent = '请让肩膀入画';
+      els.cameraStatus.textContent = t('请让肩膀入画');
       els.cameraDebug.textContent =
-        `肩膀 ${shouldersOk ? '✓' : '✗'} · 双手 ${wristsOk ? '✓' : '✗'}`;
+        tpl('肩膀 {0} · 双手 {1}', shouldersOk ? '✓' : '✗', wristsOk ? '✓' : '✗');
       return;
     }
 
@@ -1219,8 +1477,8 @@
 
     if (wristsOk && !handsBelow) {
       resetDetection();
-      els.cameraStatus.textContent = '请摆好俯卧撑姿势：双手撑地';
-      els.cameraDebug.textContent = '双手不在肩部下方';
+      els.cameraStatus.textContent = t('请摆好俯卧撑姿势：双手撑地');
+      els.cameraDebug.textContent = t('双手不在肩部下方');
       return;
     }
 
@@ -1228,8 +1486,8 @@
       const bodyLevel = Math.abs(shoulderY - hipY) < 0.25;
       if (!bodyLevel) {
         resetDetection();
-        els.cameraStatus.textContent = '请摆好俯卧撑姿势：身体保持水平';
-        els.cameraDebug.textContent = '身体水平 ✗';
+        els.cameraStatus.textContent = t('请摆好俯卧撑姿势：身体保持水平');
+        els.cameraDebug.textContent = t('身体水平 ✗');
         return;
       }
     }
@@ -1241,8 +1499,8 @@
         kneelingFrames += 1;
         if (kneelingFrames >= 5) {
           resetDetection();
-          els.cameraStatus.textContent = '膝盖着地不计入，请做标准俯卧撑';
-          els.cameraDebug.textContent = `髋角 ${Math.round(hipAngle)}°（疑似跪姿）`;
+          els.cameraStatus.textContent = t('膝盖着地不计入，请做标准俯卧撑');
+          els.cameraDebug.textContent = tpl('髋角 {0}°（疑似跪姿）', Math.round(hipAngle));
           return;
         }
         return;
@@ -1258,8 +1516,8 @@
         kneelingFrames += 1;
         if (kneelingFrames >= 5) {
           resetDetection();
-          els.cameraStatus.textContent = '膝盖弯曲不计入，请伸直双腿';
-          els.cameraDebug.textContent = `膝角 ${Math.round(kneeAngle)}°（疑似跪姿）`;
+          els.cameraStatus.textContent = t('膝盖弯曲不计入，请伸直双腿');
+          els.cameraDebug.textContent = tpl('膝角 {0}°（疑似跪姿）', Math.round(kneeAngle));
           return;
         }
         return;
@@ -1288,7 +1546,7 @@
             sum + angleDeg(lm[triplet[0]], lm[triplet[1]], lm[triplet[2]]),
           0
         ) / validArms.length;
-      mode = '手臂角度';
+      mode = t('手臂角度');
       value = `${Math.round(avgAngle)}°`;
       down = avgAngle < 140;
       up = avgAngle > 155;
@@ -1299,14 +1557,14 @@
         gapBaseline = gapBaseline * 0.9 + gap * 0.1;
       }
       const gapDelta = gap - gapBaseline;
-      mode = '肩髋间距';
+      mode = t('肩髋间距');
       value = (gapDelta >= 0 ? '+' : '') + gapDelta.toFixed(3);
       down = gapDelta > 0.05;
       up = gapDelta < 0.02;
     } else {
       resetDetection();
-      els.cameraStatus.textContent = '请让手臂完整入画或让胯部入画';
-      els.cameraDebug.textContent = '手臂不完整且胯部不可见';
+      els.cameraStatus.textContent = t('请让手臂完整入画或让胯部入画');
+      els.cameraDebug.textContent = t('手臂不完整且胯部不可见');
       return;
     }
 
@@ -1314,7 +1572,7 @@
       if (phase !== 'down') downFrames = 0;
       phase = 'down';
       downFrames += 1;
-      els.cameraStatus.textContent = '⬇ 保持控制，然后撑起';
+      els.cameraStatus.textContent = t('⬇ 保持控制，然后撑起');
     } else if (up) {
       if (
         phase === 'down' &&
@@ -1326,12 +1584,12 @@
       }
       phase = 'up';
       downFrames = 0;
-      els.cameraStatus.textContent = '⬆ 好姿势，继续';
+      els.cameraStatus.textContent = t('⬆ 好姿势，继续');
     } else {
-      els.cameraStatus.textContent = '正在识别动作…';
+      els.cameraStatus.textContent = t('正在识别动作…');
     }
     els.cameraDebug.textContent =
-      `模式 ${mode} · 数值 ${value} · 状态 ${phase === 'down' ? '下压' : '撑起'}`;
+      tpl('模式 {0} · 数值 {1} · 状态 {2}', mode, value, phase === 'down' ? t('下压') : t('撑起'));
   }
 
   function resetDetection() {
@@ -1385,7 +1643,7 @@
     }
   });
   els.resetBtn.addEventListener('click', () => {
-    if (sessionCount > 0 && !window.confirm('确定清空本次计数吗？')) return;
+    if (sessionCount > 0 && !window.confirm(t('确定清空本次计数吗？'))) return;
     sessionCount = 0;
     phase = null;
     render();
@@ -1403,7 +1661,7 @@
     if (restSeconds > 0 && setIndex < planSetsList.length) {
       clearRest();
       updateSessionInfo();
-      flash(`第 ${setIndex + 1} 组开始 💪`);
+      flash(tpl('第 {0} 组开始 💪', setIndex + 1));
     }
   });
   els.cameraStart.addEventListener('click', startCamera);
@@ -1423,6 +1681,28 @@
     persistAccount();
   });
 
+  document.querySelectorAll('#lang-selector .seg-btn').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      settings.lang = btn.dataset.lang === 'en' ? 'en' : 'zh';
+      persistAccount();
+      applyLang();
+    });
+  });
+
+  document.querySelectorAll('#theme-selector .seg-btn').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      settings.theme = btn.dataset.themeOpt;
+      persistAccount();
+      applyTheme();
+    });
+  });
+
+  if (window.matchMedia) {
+    window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => {
+      applyTheme();
+    });
+  }
+
   els.saveProfile.addEventListener('click', () => {
     const nickname = els.profNickname.value.trim();
     const heightCm = parseFloat(els.profHeight.value);
@@ -1434,7 +1714,7 @@
       !(age >= 5 && age <= 120) ||
       !(weightKg >= 20 && weightKg <= 300)
     ) {
-      flash('请填写有效的昵称、身高、年龄、体重');
+      flash(t('请填写有效的昵称、身高、年龄、体重'));
       return;
     }
     currentAccount.nickname = nickname;
@@ -1443,7 +1723,7 @@
     currentAccount.weightKg = weightKg;
     persistAccount();
     render();
-    flash('资料已保存 ✅');
+    flash(t('资料已保存 ✅'));
   });
 
   document.querySelectorAll('.plan-btn').forEach((btn) => {
@@ -1463,7 +1743,7 @@
       persistAccount();
       renderPlan();
       render();
-      flash(settings.plan.preset === 'custom' ? '自定义计划已展开 ✏️' : '已切换训练计划');
+      flash(settings.plan.preset === 'custom' ? t('自定义计划已展开 ✏️') : t('已切换训练计划'));
     });
   });
   els.planStart.addEventListener('click', startPlanWorkout);
@@ -1545,7 +1825,9 @@
 
   (function boot() {
     updateTodayLabel();
-    els.versionLabel.textContent = '版本 ' + APP_VERSION;
+    els.versionLabel.textContent = tpl('版本 {0}', APP_VERSION);
+    applyTheme();
+    applyLang();
     enterApp();
   })();
 })();
