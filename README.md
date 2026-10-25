@@ -1,5 +1,15 @@
 # PushPulse 网页测试版 💪
 
+## English overview and repository scope
+
+PushPulse is a local web prototype for workout tracking flows, with manual counting, camera-mode experiments, plans and browser-based history. Its documented storage is browser localStorage, with no login or cloud synchronization.
+
+The repository also contains `privacy.html` and `support.html` written for **CountPush on iOS**. Their Apple sign-in, iCloud, Apple Health and subscription descriptions refer to that documented target, rather than features of this PushPulse web prototype. This README does not establish a release or rebranding relationship between the two names. Review each target separately before updating those pages.
+
+The recorded checks concern prototype workflows. This documentation update did not retest the app, measure camera-counting accuracy or verify physical iOS devices.
+
+---
+
 Windows 本机可直接测试的 PushPulse 网页版：手动计数 + 摄像头 AI 计数，带训练计划、统计、个人资料。
 无登录、无云同步，数据只保存在当前浏览器中。
 
